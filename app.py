@@ -19,9 +19,13 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure the database - Force SQLite for now due to DATABASE_URL connection issues
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///harmony_hands.db"
-logging.info("Using SQLite database")
+# Configure the database
+database_url = os.environ.get("DATABASE_URL", "sqlite:///harmony_hands.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+if database_url.startswith("sqlite"):
+    logging.info("Using SQLite database")
+else:
+    logging.info("Using PostgreSQL database")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
     "pool_pre_ping": True,
