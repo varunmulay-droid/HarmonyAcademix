@@ -1,0 +1,15 @@
+# Ignore these files/folders
+.env
+venv/
+__pycache__/
+*.pyc
+.vscode/
+uploads/
+*.log
+logs/
+*.db
+*.sqlite3
+.replit
+replit.nix
+runtime/
+uv.lock
