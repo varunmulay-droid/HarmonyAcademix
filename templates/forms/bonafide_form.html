@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}प्रतिनिधान प्रमाणपत्र फॉर्म - Project Harmony Hands{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2>प्रतिनिधान प्रमाणपत्र फॉर्म</h2>
+                    <small>STU ID: {{ current_user.stu_id }}</small>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">विद्यार्थ्याचे पूर्ण नाव:</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">शैक्षणिक वर्ष:</label>
+                            <input type="text" name="year" class="form-control" required placeholder="उदा. 2023-24">
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">इयत्ता:</label>
+                                <input type="text" name="std" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">तुकडी:</label>
+                                <input type="text" name="div" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">वर्तन:</label>
+                            <select name="conduct" class="form-select" required>
+                                <option value="">निवडा</option>
+                                <option value="उत्तम">उत्तम</option>
+                                <option value="चांगले">चांगले</option>
+                                <option value="सामान्य">सामान्य</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">जात:</label>
+                            <input type="text" name="caste" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">जन्मतारीख:</label>
+                            <input type="date" name="dob" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">जन्मस्थान:</label>
+                            <input type="text" name="birthplace" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">शाळेचे स्थळ:</label>
+                            <input type="text" name="place" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">विद्यार्थी ID:</label>
+                            <input type="text" name="id" class="form-control" value="{{ current_user.stu_id }}" readonly>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="fas fa-paper-plane me-2"></i>विनंती सबमिट करा
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

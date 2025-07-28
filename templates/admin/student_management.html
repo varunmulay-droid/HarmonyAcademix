@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}विद्यार्थी व्यवस्थापन - Project Harmony Hands{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3">विद्यार्थी व्यवस्थापन</h1>
+                    <p class="text-muted mb-0">सर्व नोंदणीकृत विद्यार्थ्यांची यादी</p>
+                </div>
+                <div>
+                    <button class="btn btn-success" onclick="exportStudents()">
+                        <i class="fas fa-download me-2"></i>Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">STU ID शोधा</label>
+                            <input type="text" class="form-control" id="searchStuId" placeholder="STU001, STU002...">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">नाव शोधा</label>
+                            <input type="text" class="form-control" id="searchName" placeholder="विद्यार्थ्याचे नाव">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">कार्ये</label>
+                            <div>
+                                <button class="btn btn-primary w-100" onclick="filterStudents()">
+                                    <i class="fas fa-search me-2"></i>शोधा
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">विद्यार्थी यादी ({{ students|length }} एकूण)</h5>
+                    <span class="badge bg-primary">{{ students|length }}/300 STU IDs वापरात</span>
+                </div>
+                <div class="card-body p-0">
+                    {% if students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="studentsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>STU ID</th>
+                                    <th>नाव</th>
+                                    <th>उपयोगकर्ता नाव</th>
+                                    <th>ईमेल</th>
+                                    <th>मोबाईल</th>
+                                    <th>नोंदणी तारीख</th>
+                                    <th>अर्ज स्थिती</th>
+                                    <th>कार्ये</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr data-stu-id="{{ student.stu_id }}" data-name="{{ student.first_name }} {{ student.last_name }}">
+                                    <td>
+                                        <span class="badge bg-primary fs-6">{{ student.stu_id }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ student.first_name or '' }} {{ student.last_name or '' }}</strong>
+                                        {% if not student.first_name and not student.last_name %}
+                                        <small class="text-muted">नाव अद्याप भरलेले नाही</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ student.username }}</td>
+                                    <td>{{ student.email }}</td>
+                                    <td>{{ student.phone or '-' }}</td>
+                                    <td>{{ student.created_at.strftime('%d/%m/%Y') }}</td>
+                                    <td>
+                                        <div class="d-flex flex-column gap-1">
+                                            <span class="badge bg-info">प्रवेश: {{ student.admission_forms|length }}</span>
+                                            <span class="badge bg-success">बोनाफाइड: {{ student.bonafide_requests|length }}</span>
+                                            <span class="badge bg-warning">वसतिगृह: {{ student.hostel_applications|length }}</span>
+                                            <span class="badge bg-secondary">केस: {{ student.case_records|length }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group-vertical btn-group-sm">
+                                            <button class="btn btn-outline-primary btn-sm" onclick="viewStudent('{{ student.id }}')">
+                                                <i class="fas fa-eye me-1"></i>पहा
+                                            </button>
+                                            <button class="btn btn-outline-info btn-sm" onclick="editStudent('{{ student.id }}')">
+                                                <i class="fas fa-edit me-1"></i>संपादन
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" onclick="resetPassword('{{ student.id }}')">
+                                                <i class="fas fa-key me-1"></i>पासवर्ड रीसेट
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">कोणतेही विद्यार्थी नोंदणीकृत नाहीत</h5>
+                        <p class="text-muted">विद्यार्थी नोंदणी केल्यावर ते येथे दिसतील</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available STU IDs -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">STU ID उपलब्धता</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="progress mb-2">
+                                {% set used_percentage = (students|length / 300) * 100 %}
+                                <div class="progress-bar bg-success" style="width: {{ used_percentage }}%"></div>
+                            </div>
+                            <p class="mb-0">
+                                <strong>वापरात:</strong> {{ students|length }}/300 ({{ "%.1f"|format(used_percentage) }}%)
+                                <span class="ms-3"><strong>उपलब्ध:</strong> {{ 300 - students|length }}</span>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-primary w-100" onclick="showAvailableIds()">
+                                <i class="fas fa-list me-2"></i>उपलब्ध STU IDs पहा
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Student Detail Modal -->
+<div class="modal fade" id="studentDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">विद्यार्थी तपशील</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="studentDetailContent">
+                <!-- Student details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Available STU IDs Modal -->
+<div class="modal fade" id="availableIdsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">उपलब्ध STU IDs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="availableIdsList">
+                    <!-- Available IDs will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterStudents() {
+    const stuIdFilter = document.getElementById('searchStuId').value.toLowerCase();
+    const nameFilter = document.getElementById('searchName').value.toLowerCase();
+    const rows = document.querySelectorAll('#studentsTable tbody tr');
+    
+    rows.forEach(row => {
+        const stuId = row.dataset.stuId.toLowerCase();
+        const name = row.dataset.name.toLowerCase();
+        
+        const matchesStuId = !stuIdFilter || stuId.includes(stuIdFilter);
+        const matchesName = !nameFilter || name.includes(nameFilter);
+        
+        if (matchesStuId && matchesName) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function viewStudent(studentId) {
+    // This would typically make an AJAX call to get student details
+    document.getElementById('studentDetailContent').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">विद्यार्थी माहिती लोड करत आहे...</p>
+        </div>
+    `;
+    new bootstrap.Modal(document.getElementById('studentDetailModal')).show();
+    
+    // Simulate loading (in real implementation, make AJAX call)
+    setTimeout(() => {
+        document.getElementById('studentDetailContent').innerHTML = `
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                विस्तृत विद्यार्थी माहिती येथे दिसेल. API एंडपॉइंट /api/student/${studentId} वापरा.
+            </div>
+        `;
+    }, 1000);
+}
+
+function editStudent(studentId) {
+    alert(`Edit functionality for student ID ${studentId} - API एंडपॉइंट तयार करावा लागेल`);
+}
+
+function resetPassword(studentId) {
+    if (confirm('या विद्यार्थ्याचा पासवर्ड रीसेट करायचा आहे का?')) {
+        alert(`Password reset for student ID ${studentId} - API एंडपॉइंट तयार करावा लागेल`);
+    }
+}
+
+function exportStudents() {
+    alert('Excel export functionality will be implemented');
+}
+
+function showAvailableIds() {
+    const usedIds = Array.from(document.querySelectorAll('#studentsTable tbody tr')).map(row => 
+        row.dataset.stuId
+    );
+    
+    const allIds = [];
+    for (let i = 1; i <= 300; i++) {
+        allIds.push(`STU${i.toString().padStart(3, '0')}`);
+    }
+    
+    const availableIds = allIds.filter(id => !usedIds.includes(id));
+    
+    let htmlContent = '<div class="row">';
+    availableIds.forEach((id, index) => {
+        if (index % 6 === 0 && index > 0) htmlContent += '</div><div class="row">';
+        htmlContent += `<div class="col-2 mb-2"><span class="badge bg-success">${id}</span></div>`;
+    });
+    htmlContent += '</div>';
+    
+    if (availableIds.length === 0) {
+        htmlContent = '<div class="alert alert-warning">सर्व STU IDs वापरात आहेत!</div>';
+    } else {
+        htmlContent = `<p class="mb-3"><strong>एकूण उपलब्ध:</strong> ${availableIds.length}</p>` + htmlContent;
+    }
+    
+    document.getElementById('availableIdsList').innerHTML = htmlContent;
+    new bootstrap.Modal(document.getElementById('availableIdsModal')).show();
+}
+
+// Real-time search
+document.getElementById('searchStuId').addEventListener('input', filterStudents);
+document.getElementById('searchName').addEventListener('input', filterStudents);
+</script>
+{% endblock %}

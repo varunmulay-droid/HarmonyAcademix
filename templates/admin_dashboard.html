@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Project Harmony Hands{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3">Admin Dashboard</h1>
+                    <p class="text-muted mb-0">Project Harmony Hands - Student Management System</p>
+                </div>
+                <div>
+                    <span class="badge bg-success fs-6">Administrator</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_students }}</h4>
+                            <p class="mb-0">एकूण विद्यार्थी</p>
+                        </div>
+                        <i class="fas fa-users fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-2">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_admissions }}</h4>
+                            <p class="mb-0">प्रवेश अर्ज</p>
+                        </div>
+                        <i class="fas fa-file-alt fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-2">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_bonafide }}</h4>
+                            <p class="mb-0">बोनाफाइड विनंत्या</p>
+                        </div>
+                        <i class="fas fa-certificate fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-2">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_hostel }}</h4>
+                            <p class="mb-0">वसतिगृह अर्ज</p>
+                        </div>
+                        <i class="fas fa-home fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-2">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ total_case_records }}</h4>
+                            <p class="mb-0">केस रेकॉर्ड</p>
+                        </div>
+                        <i class="fas fa-folder-open fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-2">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ 300 - total_students }}</h4>
+                            <p class="mb-0">उपलब्ध STU IDs</p>
+                        </div>
+                        <i class="fas fa-id-card fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">त्वरित कार्ये</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('admin_students') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-users me-2"></i>विद्यार्थी व्यवस्थापन
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('admin_forms') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-file-alt me-2"></i>अर्ज पहा
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-outline-success w-100" onclick="exportData('students')">
+                                <i class="fas fa-download me-2"></i>Export विद्यार्थी
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-outline-warning w-100" onclick="exportData('forms')">
+                                <i class="fas fa-download me-2"></i>Export अर्ज
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">नवीन विद्यार्थी</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_students %}
+                    <div class="list-group list-group-flush">
+                        {% for student in recent_students %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ student.first_name }} {{ student.last_name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ student.email }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-primary">{{ student.stu_id }}</span>
+                                <br>
+                                <small class="text-muted">{{ student.created_at.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">कोणतेही नवीन विद्यार्थी नाहीत</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">नवीन प्रवेश अर्ज</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_admissions %}
+                    <div class="list-group list-group-flush">
+                        {% for admission in recent_admissions %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ admission.first_name_marathi }} {{ admission.last_name_marathi }}</strong>
+                                <br>
+                                <small class="text-muted">{{ admission.school_name }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-{{ 'success' if admission.status == 'approved' else 'warning' if admission.status == 'pending' else 'danger' }}">
+                                    {{ admission.status }}
+                                </span>
+                                <br>
+                                <small class="text-muted">{{ admission.created_at.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">कोणतेही नवीन अर्ज नाहीत</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportData(type) {
+    alert('Export functionality will be implemented soon!');
+}
+</script>
+{% endblock %}

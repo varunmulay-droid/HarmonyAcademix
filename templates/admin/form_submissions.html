@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}अर्ज सबमिशन - Project Harmony Hands{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3">अर्ज सबमिशन व्यवस्थापन</h1>
+                    <p class="text-muted mb-0">सर्व प्रकारच्या अर्जांची यादी आणि व्यवस्थापन</p>
+                </div>
+                <div>
+                    <button class="btn btn-success" onclick="exportAllForms()">
+                        <i class="fas fa-download me-2"></i>सर्व अर्ज Export करा
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ admissions|length }}</h4>
+                            <p class="mb-0">प्रवेश अर्ज</p>
+                        </div>
+                        <i class="fas fa-file-alt fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ bonafides|length }}</h4>
+                            <p class="mb-0">बोनाफाइड विनंत्या</p>
+                        </div>
+                        <i class="fas fa-certificate fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ hostels|length }}</h4>
+                            <p class="mb-0">वसतिगृह अर्ज</p>
+                        </div>
+                        <i class="fas fa-home fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ case_records|length }}</h4>
+                            <p class="mb-0">केस रेकॉर्ड</p>
+                        </div>
+                        <i class="fas fa-folder-open fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs for different form types -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="formTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="admissions-tab" data-bs-toggle="tab" data-bs-target="#admissions" type="button" role="tab">
+                                <i class="fas fa-file-alt me-2"></i>प्रवेश अर्ज ({{ admissions|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="bonafides-tab" data-bs-toggle="tab" data-bs-target="#bonafides" type="button" role="tab">
+                                <i class="fas fa-certificate me-2"></i>बोनाफाइड ({{ bonafides|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="hostels-tab" data-bs-toggle="tab" data-bs-target="#hostels" type="button" role="tab">
+                                <i class="fas fa-home me-2"></i>वसतिगृह ({{ hostels|length }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="case-records-tab" data-bs-toggle="tab" data-bs-target="#case-records" type="button" role="tab">
+                                <i class="fas fa-folder-open me-2"></i>केस रेकॉर्ड ({{ case_records|length }})
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card-body">
+                    <div class="tab-content" id="formTabsContent">
+                        <!-- Admission Forms Tab -->
+                        <div class="tab-pane fade show active" id="admissions" role="tabpanel">
+                            {% if admissions %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>STU ID</th>
+                                            <th>नाव</th>
+                                            <th>शाळेचे नाव</th>
+                                            <th>इयत्ता</th>
+                                            <th>सबमिशन तारीख</th>
+                                            <th>स्थिती</th>
+                                            <th>कार्ये</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for admission in admissions %}
+                                        <tr>
+                                            <td><span class="badge bg-primary">{{ admission.student.stu_id }}</span></td>
+                                            <td>{{ admission.first_name_marathi }} {{ admission.last_name_marathi }}</td>
+                                            <td>{{ admission.school_name or '-' }}</td>
+                                            <td>{{ admission.admission_class or '-' }}</td>
+                                            <td>{{ admission.created_at.strftime('%d/%m/%Y') }}</td>
+                                            <td>
+                                                <select class="form-select form-select-sm" onchange="updateStatus('admission', {{ admission.id }}, this.value)">
+                                                    <option value="pending" {{ 'selected' if admission.status == 'pending' else '' }}>प्रलंबित</option>
+                                                    <option value="approved" {{ 'selected' if admission.status == 'approved' else '' }}>मंजूर</option>
+                                                    <option value="rejected" {{ 'selected' if admission.status == 'rejected' else '' }}>नाकारलेला</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" onclick="viewAdmission({{ admission.id }})">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-info" onclick="downloadAdmission({{ admission.id }})">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">कोणतेही प्रवेश अर्ज नाहीत</h5>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Bonafide Requests Tab -->
+                        <div class="tab-pane fade" id="bonafides" role="tabpanel">
+                            {% if bonafides %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>STU ID</th>
+                                            <th>विद्यार्थ्याचे नाव</th>
+                                            <th>शैक्षणिक वर्ष</th>
+                                            <th>इयत्ता</th>
+                                            <th>सबमिशन तारीख</th>
+                                            <th>स्थिती</th>
+                                            <th>कार्ये</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for bonafide in bonafides %}
+                                        <tr>
+                                            <td><span class="badge bg-primary">{{ bonafide.student.stu_id }}</span></td>
+                                            <td>{{ bonafide.student_name }}</td>
+                                            <td>{{ bonafide.academic_year }}</td>
+                                            <td>{{ bonafide.standard }}</td>
+                                            <td>{{ bonafide.created_at.strftime('%d/%m/%Y') }}</td>
+                                            <td>
+                                                <select class="form-select form-select-sm" onchange="updateStatus('bonafide', {{ bonafide.id }}, this.value)">
+                                                    <option value="pending" {{ 'selected' if bonafide.status == 'pending' else '' }}>प्रलंबित</option>
+                                                    <option value="approved" {{ 'selected' if bonafide.status == 'approved' else '' }}>मंजूर</option>
+                                                    <option value="rejected" {{ 'selected' if bonafide.status == 'rejected' else '' }}>नाकारलेला</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" onclick="viewBonafide({{ bonafide.id }})">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <a href="{{ url_for('generate_certificate', bonafide_id=bonafide.id) }}" class="btn btn-outline-success" target="_blank">
+                                                        <i class="fas fa-certificate"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-certificate fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">कोणत्याही बोनाफाइड विनंत्या नाहीत</h5>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Hostel Applications Tab -->
+                        <div class="tab-pane fade" id="hostels" role="tabpanel">
+                            {% if hostels %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>STU ID</th>
+                                            <th>विद्यार्थ्याचे नाव</th>
+                                            <th>वसतिगृहाचे नाव</th>
+                                            <th>पालकांचे नाव</th>
+                                            <th>सबमिशन तारीख</th>
+                                            <th>स्थिती</th>
+                                            <th>कार्ये</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for hostel in hostels %}
+                                        <tr>
+                                            <td><span class="badge bg-primary">{{ hostel.student.stu_id }}</span></td>
+                                            <td>{{ hostel.student_name or '-' }}</td>
+                                            <td>{{ hostel.hostel_name or '-' }}</td>
+                                            <td>{{ hostel.parent_name or '-' }}</td>
+                                            <td>{{ hostel.created_at.strftime('%d/%m/%Y') }}</td>
+                                            <td>
+                                                <select class="form-select form-select-sm" onchange="updateStatus('hostel', {{ hostel.id }}, this.value)">
+                                                    <option value="pending" {{ 'selected' if hostel.status == 'pending' else '' }}>प्रलंबित</option>
+                                                    <option value="approved" {{ 'selected' if hostel.status == 'approved' else '' }}>मंजूर</option>
+                                                    <option value="rejected" {{ 'selected' if hostel.status == 'rejected' else '' }}>नाकारलेला</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" onclick="viewHostel({{ hostel.id }})">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-info" onclick="downloadHostel({{ hostel.id }})">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">कोणतेही वसतिगृह अर्ज नाहीत</h5>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Case Records Tab -->
+                        <div class="tab-pane fade" id="case-records" role="tabpanel">
+                            {% if case_records %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>STU ID</th>
+                                            <th>नाव</th>
+                                            <th>वय</th>
+                                            <th>लिंग</th>
+                                            <th>सबमिशन तारीख</th>
+                                            <th>स्थिती</th>
+                                            <th>कार्ये</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for case_record in case_records %}
+                                        <tr>
+                                            <td><span class="badge bg-primary">{{ case_record.student.stu_id }}</span></td>
+                                            <td>{{ case_record.name or '-' }}</td>
+                                            <td>{{ case_record.age or '-' }}</td>
+                                            <td>{{ case_record.gender or '-' }}</td>
+                                            <td>{{ case_record.created_at.strftime('%d/%m/%Y') }}</td>
+                                            <td>
+                                                <select class="form-select form-select-sm" onchange="updateStatus('case_record', {{ case_record.id }}, this.value)">
+                                                    <option value="pending" {{ 'selected' if case_record.status == 'pending' else '' }}>प्रलंबित</option>
+                                                    <option value="approved" {{ 'selected' if case_record.status == 'approved' else '' }}>मंजूर</option>
+                                                    <option value="rejected" {{ 'selected' if case_record.status == 'rejected' else '' }}>नाकारलेला</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" onclick="viewCaseRecord({{ case_record.id }})">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-info" onclick="downloadCaseRecord({{ case_record.id }})">
+                                                        <i class="fas fa-download"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">कोणतेही केस रेकॉर्ड नाहीत</h5>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Modal for Details -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailModalTitle">तपशील</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailModalContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function updateStatus(formType, formId, status) {
+    try {
+        const response = await fetch('/api/update_form_status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                form_type: formType,
+                form_id: formId,
+                status: status
+            })
+        });
+        
+        if (response.ok) {
+            // Show success message
+            showAlert('स्थिती यशस्वीरीत्या अपडेट केली गेली!', 'success');
+        } else {
+            showAlert('स्थिती अपडेट करताना त्रुटी आली', 'error');
+        }
+    } catch (error) {
+        showAlert('नेटवर्क त्रुटी', 'error');
+    }
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+    alertDiv.style.top = '20px';
+    alertDiv.style.right = '20px';
+    alertDiv.style.zIndex = '9999';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+
+function viewAdmission(id) {
+    showModal('प्रवेश अर्ज तपशील', 'प्रवेश अर्ज माहिती लोड करत आहे...');
+}
+
+function viewBonafide(id) {
+    showModal('बोनाफाइड विनंती तपशील', 'बोनाफाइड विनंती माहिती लोड करत आहे...');
+}
+
+function viewHostel(id) {
+    showModal('वसतिगृह अर्ज तपशील', 'वसतिगृह अर्ज माहिती लोड करत आहे...');
+}
+
+function viewCaseRecord(id) {
+    showModal('केस रेकॉर्ड तपशील', 'केस रेकॉर्ड माहिती लोड करत आहे...');
+}
+
+function showModal(title, content) {
+    document.getElementById('detailModalTitle').textContent = title;
+    document.getElementById('detailModalContent').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">${content}</p>
+        </div>
+    `;
+    new bootstrap.Modal(document.getElementById('detailModal')).show();
+}
+
+function downloadAdmission(id) {
+    alert(`Download admission form ${id} - API endpoint needed`);
+}
+
+function downloadHostel(id) {
+    alert(`Download hostel application ${id} - API endpoint needed`);
+}
+
+function downloadCaseRecord(id) {
+    alert(`Download case record ${id} - API endpoint needed`);
+}
+
+function exportAllForms() {
+    alert('Export all forms functionality - API endpoint needed');
+}
+</script>
+{% endblock %}

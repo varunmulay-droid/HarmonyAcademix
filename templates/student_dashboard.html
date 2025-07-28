@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - Project Harmony Hands{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3">विद्यार्थी Dashboard</h1>
+                    <p class="text-muted mb-0">स्वागत आहे, {{ current_user.first_name or current_user.username }}!</p>
+                    <small class="text-primary">STU ID: {{ current_user.stu_id }}</small>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-primary fs-6">{{ current_user.stu_id }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ admission_count }}</h4>
+                            <p class="mb-0">प्रवेश अर्ज</p>
+                        </div>
+                        <i class="fas fa-file-alt fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ bonafide_count }}</h4>
+                            <p class="mb-0">बोनाफाइड प्रमाणपत्र</p>
+                        </div>
+                        <i class="fas fa-certificate fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ hostel_count }}</h4>
+                            <p class="mb-0">वसतिगृह अर्ज</p>
+                        </div>
+                        <i class="fas fa-home fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4>{{ case_record_count }}</h4>
+                            <p class="mb-0">केस रेकॉर्ड</p>
+                        </div>
+                        <i class="fas fa-folder-open fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Forms -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-3">उपलब्ध अर्ज</h3>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card h-100 hover-shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-file-alt fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">शाळा प्रवेश अर्ज</h5>
+                    <p class="card-text">शाळेत प्रवेश घेण्यासाठी अर्ज भरा</p>
+                    <a href="{{ url_for('admission_form') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>अर्ज भरा
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card h-100 hover-shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-certificate fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">बोनाफाइड प्रमाणपत्र</h5>
+                    <p class="card-text">प्रतिनिधान प्रमाणपत्र मिळवा</p>
+                    <a href="{{ url_for('bonafide_form') }}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>विनंती करा
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card h-100 hover-shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-home fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">वसतिगृह प्रवेश</h5>
+                    <p class="card-text">वसतिगृहात प्रवेशासाठी अर्ज</p>
+                    <a href="{{ url_for('hostel_form') }}" class="btn btn-warning">
+                        <i class="fas fa-plus me-2"></i>अर्ज भरा
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card h-100 hover-shadow">
+                <div class="card-body text-center">
+                    <i class="fas fa-folder-open fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">केस रेकॉर्ड</h5>
+                    <p class="card-text">वैद्यकीय केस रेकॉर्ड फॉर्म</p>
+                    <a href="{{ url_for('case_record_form') }}" class="btn btn-info">
+                        <i class="fas fa-plus me-2"></i>रेकॉर्ड भरा
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">तुमची माहिती</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>नाव:</strong> {{ current_user.first_name }} {{ current_user.last_name }}</p>
+                            <p><strong>उपयोगकर्ता नाव:</strong> {{ current_user.username }}</p>
+                            <p><strong>STU ID:</strong> {{ current_user.stu_id }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>ईमेल:</strong> {{ current_user.email }}</p>
+                            <p><strong>मोबाईल:</strong> {{ current_user.phone or 'अद्याप जोडला नाही' }}</p>
+                            <p><strong>नोंदणी तारीख:</strong> {{ current_user.created_at.strftime('%d/%m/%Y') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}शाळा प्रवेश अर्ज - Project Harmony Hands{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="form-title text-center mb-4">
+        <h2 class="fw-bold">शाळा प्रवेश अर्ज</h2>
+        <p class="text-muted">STU ID: {{ current_user.stu_id }}</p>
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" class="card p-4 shadow">
+        <!-- विद्यार्थी आणि शाळेची माहिती -->
+        <div class="section-title">विद्यार्थी आणि शाळेची माहिती</div>
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="form-label">शाळेचे नाव</label>
+                <input type="text" class="form-control" name="school_name">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">विद्यार्थी सतत ID</label>
+                <input type="text" class="form-control" name="student_continuous_id">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">U-DISE+ पोर्टल SDMS - STUDENT PEN</label>
+                <input type="text" class="form-control" name="udise_pen">
+            </div>
+            <div class="col-md-4 mt-3">
+                <label class="form-label">प्रवेश इयत्ता</label>
+                <input type="text" class="form-control" name="admission_class">
+            </div>
+        </div>
+
+        <!-- Personal IDs and Dates -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label class="form-label">जन्माचा रजिस्टर नं.</label>
+                <input type="text" class="form-control" name="birth_register_no">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">आधार कार्ड नं.</label>
+                <input type="text" class="form-control" name="aadhar_no">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">जन्मतारीख</label>
+                <input type="date" class="form-control" name="birth_date">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">शाळेत प्रवेश तारीख</label>
+                <input type="date" class="form-control" name="admission_date">
+            </div>
+        </div>
+
+        <!-- Gender and Photos -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="form-label d-block">लिंग</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="male" value="male">
+                    <label class="form-check-label" for="male">मुलगा</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                    <label class="form-check-label" for="female">मुलगी</label>
+                </div>
+            </div>
+            <div class="col-md-4 photo-upload">
+                <label for="studentPhoto" class="form-label">विद्यार्थ्याचे फोटो</label>
+                <input type="file" class="form-control" id="studentPhoto" name="student_photo" accept="image/*">
+            </div>
+            <div class="col-md-4 photo-upload">
+                <label for="parentPhoto" class="form-label">पालकांचे फोटो</label>
+                <input type="file" class="form-control" id="parentPhoto" name="parent_photo" accept="image/*">
+            </div>
+        </div>
+
+        <!-- Student Name -->
+        <div class="section-title">विद्यार्थ्याचे नाव</div>
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label class="form-label">प्रथम नाव (मराठी)</label>
+                <input type="text" class="form-control" name="first_name_marathi">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">आडनाव (मराठी)</label>
+                <input type="text" class="form-control" name="last_name_marathi">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">वडिलांचे नाव</label>
+                <input type="text" class="form-control" name="father_name">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">आईचे नाव</label>
+                <input type="text" class="form-control" name="mother_name">
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="mb-3">
+            <label class="form-label">जन्मतारीख अक्षरी</label>
+            <input type="text" class="form-control" name="birth_date_words">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">धर्म</label>
+            <input type="text" class="form-control" name="religion">
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <label class="form-label">जात</label>
+                <input type="text" class="form-control" name="caste">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">पोटजात</label>
+                <input type="text" class="form-control" name="subcaste">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">जात प्रमाण</label>
+                <input type="text" class="form-control" name="caste_certificate">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label d-block">अल्पसंख्याक: आहे / नाही</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="minority" id="minorityYes" value="yes">
+                    <label class="form-check-label" for="minorityYes">आहे</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="minority" id="minorityNo" value="no">
+                    <label class="form-check-label" for="minorityNo">नाही</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="form-label">राष्ट्रत्व</label>
+                <input type="text" class="form-control" name="nationality">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">मातृभाषा</label>
+                <input type="text" class="form-control" name="mother_tongue">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">मोबाईल क्रमांक</label>
+                <input type="text" class="form-control" name="mobile_number">
+            </div>
+        </div>
+
+        <!-- BPL and Disability -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="form-label">BPL स्थिती</label>
+                <div class="d-md-flex align-items-center">
+                    <div class="form-check me-3">
+                        <input class="form-check-input" type="radio" name="bpl" id="bplYes" value="yes">
+                        <label class="form-check-label" for="bplYes">आहे</label>
+                    </div>
+                    <div class="form-check me-3">
+                        <input class="form-check-input" type="radio" name="bpl" id="bplNo" value="no">
+                        <label class="form-check-label" for="bplNo">नाही</label>
+                    </div>
+                    <input type="text" class="form-control mt-2 mt-md-0" placeholder="BPL क्रमांक" name="bpl_number">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">दिव्यांग स्थिती</label>
+                <div class="d-md-flex align-items-center">
+                    <div class="form-check me-3">
+                        <input class="form-check-input" type="radio" name="divyang" id="divyangYes" value="yes">
+                        <label class="form-check-label" for="divyangYes">आहे</label>
+                    </div>
+                    <div class="form-check me-3">
+                        <input class="form-check-input" type="radio" name="divyang" id="divyangNo" value="no">
+                        <label class="form-check-label" for="divyangNo">नाही</label>
+                    </div>
+                    <input type="text" class="form-control mt-2 mt-md-0" placeholder="दिव्यांग प्रकार" name="disability_type">
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">पालकांचे संपूर्ण नाव</label>
+            <input type="text" class="form-control" name="parent_full_name">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">पत्ता</label>
+            <textarea class="form-control" rows="2" name="address"></textarea>
+        </div>
+
+        <div class="mb-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="confirmationCheck" required>
+                <label class="form-check-label" for="confirmationCheck">
+                    वरील नमूद केलेली सर्व माहिती बरोबर असून मी ती स्वतः दिली आहे. तसेच रजिस्टर नंबर व त्या नंतर देण्यात आलेली माहिती खरीखुरी आहे.
+                </label>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-4">
+                <i class="fas fa-paper-plane me-2"></i>जमा करा
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+.section-title {
+    font-weight: bold;
+    font-size: 20px;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #34495e;
+    border-bottom: 2px solid #ced4da;
+    padding-bottom: 5px;
+}
+.form-label {
+    font-weight: 500;
+}
+.photo-upload label {
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %}
