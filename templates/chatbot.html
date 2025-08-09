@@ -2,113 +2,190 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mistral AI Chat Interface</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bootstrap 5 CDN -->
+  <title>AI Chat Support - Harmony Hands</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap & FontAwesome -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
   <style>
-    body {
-      background: linear-gradient(to right, #1f1c2c, #928dab);
-      color: #fff;
-      min-height: 100vh;
+    /* Floating Chat Icon */
+    #chatIcon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #17a2b8;
+      color: white;
+      border-radius: 50%;
+      padding: 15px;
+      cursor: grab;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 9999;
+      transition: transform 0.2s ease-in-out;
+    }
+    #chatIcon:hover {
+      transform: scale(1.1);
+    }
+
+    /* Chatbox with animation */
+    #chatBox {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 350px;
+      max-height: 500px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    #chatBox.show {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Segoe UI', sans-serif;
+      opacity: 1;
+      transform: translateY(0);
     }
-    .card {
-      background-color: #2a2b38;
-      border: none;
-      border-radius: 1rem;
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+
+    #chatMessages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      background: #f8f9fa;
     }
-    .form-control, .form-control:focus {
-      background-color: #3a3b4f;
-      color: #fff;
-      border: 1px solid #6c63ff;
+    .message {
+      margin-bottom: 10px;
     }
-    .btn-primary {
-      background: #6c63ff;
-      border: none;
-    }
-    .btn-primary:hover {
-      background: #574b90;
-    }
-    pre {
-      white-space: pre-wrap;
-      background: #1e1f2f;
-      padding: 1rem;
+    .user {
+      background: #007bff;
+      color: white;
+      padding: 8px;
       border-radius: 8px;
-      color: #00f5d4;
+      max-width: 80%;
+    }
+    .bot {
+      background: #e9ecef;
+      padding: 8px;
+      border-radius: 8px;
+      max-width: 80%;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="card p-4">
-      <h3 class="text-center mb-4">🔐 Mistral AI Interface</h3>
+<!-- Floating Icon -->
+<div id="chatIcon" draggable="true">
+  <i class="fas fa-robot fa-2x"></i>
+</div>
 
-      <div class="mb-3">
-        <label for="apiKey" class="form-label">Enter Mistral API Key</label>
-        <input type="password" class="form-control" id="apiKey" placeholder="sk-xxxxxxxxxxxxxxxx">
-      </div>
-
-      <div class="mb-3">
-        <label for="userQuery" class="form-label">Your Question</label>
-        <textarea class="form-control" id="userQuery" rows="3" placeholder="Ask something..."></textarea>
-      </div>
-
-      <button class="btn btn-primary w-100 mb-3" onclick="askMistral()">Ask Mistral</button>
-
-      <h5>🧠 Response:</h5>
-      <pre id="responseBox">Waiting for input...</pre>
+<!-- Chat Box -->
+<div id="chatBox" class="d-flex">
+  <div class="bg-info text-white p-2 d-flex justify-content-between align-items-center">
+    <span><i class="fas fa-robot me-2"></i>AI Chat Support</span>
+    <button class="btn btn-sm btn-light" id="closeChat"><i class="fas fa-times"></i></button>
+  </div>
+  
+  <div id="chatMessages"></div>
+  
+  <div class="p-2">
+    <input type="text" id="apiKeyInput" class="form-control mb-2" placeholder="Enter OpenRouter API Key">
+    <div class="input-group">
+      <textarea id="userMessage" class="form-control" placeholder="Type your message..."></textarea>
+      <button id="sendMessage" class="btn btn-info"><i class="fas fa-paper-plane"></i></button>
     </div>
   </div>
+</div>
 
-  <!-- JavaScript logic -->
-  <script>
-    async function askMistral() {
-      const apiKey = document.getElementById('apiKey').value.trim();
-      const userPrompt = document.getElementById('userQuery').value.trim();
-      const responseBox = document.getElementById('responseBox');
+<script>
+let apiKey = "";
+const chatIcon = document.getElementById("chatIcon");
+const chatBox = document.getElementById("chatBox");
+const sendMessageBtn = document.getElementById("sendMessage");
+const chatMessages = document.getElementById("chatMessages");
+const closeChat = document.getElementById("closeChat");
+const apiKeyInput = document.getElementById("apiKeyInput");
 
-      if (!apiKey || !userPrompt) {
-        responseBox.textContent = "❗ Please enter both API key and question.";
-        return;
-      }
+// Toggle chatbox on icon click
+chatIcon.addEventListener("click", () => {
+  if (chatBox.classList.contains("show")) {
+    chatBox.classList.remove("show");
+    setTimeout(() => { chatBox.style.display = "none"; }, 300);
+  } else {
+    chatBox.style.display = "flex";
+    setTimeout(() => { chatBox.classList.add("show"); }, 10);
+  }
+});
 
-      responseBox.textContent = "⏳ Waiting for response from Mistral AI...";
+// Close chatbox
+closeChat.addEventListener("click", () => {
+  chatBox.classList.remove("show");
+  setTimeout(() => { chatBox.style.display = "none"; }, 300);
+});
 
-      try {
-        const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: "mistral-tiny",
-            messages: [
-              { role: "user", content: userPrompt }
-            ]
-          })
-        });
+// Send message
+sendMessageBtn.addEventListener("click", async () => {
+  if (!apiKeyInput.value.trim()) {
+    alert("Please enter your OpenRouter API Key");
+    return;
+  }
+  apiKey = apiKeyInput.value.trim();
+  
+  const message = document.getElementById("userMessage").value.trim();
+  if (!message) return;
+  
+  addMessage("You", message, "user");
+  document.getElementById("userMessage").value = "";
 
-        const data = await response.json();
+  try {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "HTTP-Referer": window.location.origin,
+        "X-Title": document.title,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        "model": "google/gemma-3n-e4b-it:free",
+        "messages": [
+          { "role": "user", "content": message }
+        ]
+      })
+    });
 
-        if (data.choices && data.choices.length > 0) {
-          responseBox.textContent = data.choices[0].message.content.trim();
-        } else {
-          responseBox.textContent = "⚠️ No response received from Mistral.";
-        }
+    const data = await response.json();
+    const aiReply = data.choices?.[0]?.message?.content || "Error: No response from AI.";
+    addMessage("AI", aiReply, "bot");
+  } catch (err) {
+    addMessage("AI", "Error fetching AI response: " + err.message, "bot");
+  }
+});
 
-      } catch (err) {
-        console.error(err);
-        responseBox.textContent = "❌ Error: Could not fetch response. Check your API key or try again.";
-      }
-    }
-  </script>
+// Add message to chat
+function addMessage(sender, text, type) {
+  const msgDiv = document.createElement("div");
+  msgDiv.className = "message";
+  msgDiv.innerHTML = `<div class="${type}"><strong>${sender}:</strong> ${text}</div>`;
+  chatMessages.appendChild(msgDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Draggable icon
+chatIcon.addEventListener("dragstart", (e) => {
+  e.dataTransfer.setData("text/plain", "");
+});
+document.addEventListener("dragover", (e) => e.preventDefault());
+document.addEventListener("drop", (e) => {
+  e.preventDefault();
+  const iconSize = 60;
+  chatIcon.style.left = (e.clientX - iconSize / 2) + "px";
+  chatIcon.style.top = (e.clientY - iconSize / 2) + "px";
+  chatIcon.style.position = "fixed";
+});
+</script>
 
 </body>
 </html>
